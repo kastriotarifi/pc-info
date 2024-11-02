@@ -1,30 +1,29 @@
 import socket
 import platform
 import psutil
+import requests
 import streamlit as st
 
+def get_user_ip():
+    try:
+        # Get the user's external IP address
+        external_ip = requests.get('https://api.ipify.org').text
+        return external_ip
+    except Exception as e:
+        return f"Could not get IP address: {e}"
+
 def get_system_info():
-    # Get basic system information
+    # Note: This will show the server's system info
     system_info = {
         "OS": platform.system(),
         "OS Version": platform.version(),
         "Architecture": platform.architecture(),
         "Machine": platform.machine(),
         "Processor": platform.processor(),
-        "IP Address": get_ip_address(),
         "RAM": get_ram_info()
     }
     
     return system_info
-
-def get_ip_address():
-    try:
-        # Get the hostname and then the IP address
-        hostname = socket.gethostname()
-        ip_address = socket.gethostbyname(hostname)
-        return ip_address
-    except Exception as e:
-        return f"Could not get IP address: {e}"
 
 def get_ram_info():
     # Get total and available RAM
@@ -36,9 +35,13 @@ def get_ram_info():
         "Percentage": ram.percent
     }
 
-def display_info(info):
-    st.title("System Information")
-    for key, value in info.items():
+def display_info(user_ip, system_info):
+    st.title("User System Information")
+    st.subheader("User IP Address")
+    st.write(f"External IP Address: {user_ip}")
+
+    st.subheader("System Information (Server Side)")
+    for key, value in system_info.items():
         if isinstance(value, dict):
             st.subheader(key)
             for sub_key, sub_value in value.items():
@@ -50,5 +53,6 @@ def display_info(info):
             st.write(f"{key}: {value}")
 
 if __name__ == "__main__":
+    user_ip = get_user_ip()
     system_info = get_system_info()
-    display_info(system_info)
+    display_info(user_ip, system_info)
