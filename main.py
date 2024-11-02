@@ -1,6 +1,7 @@
 import socket
 import platform
 import psutil
+import streamlit as st
 
 def get_system_info():
     # Get basic system information
@@ -36,14 +37,17 @@ def get_ram_info():
     }
 
 def display_info(info):
-    print("System Information:")
+    st.title("System Information")
     for key, value in info.items():
         if isinstance(value, dict):
-            print(f"{key}:")
+            st.subheader(key)
             for sub_key, sub_value in value.items():
-                print(f"  {sub_key}: {sub_value / (1024 ** 3):.2f} GB" if "Total" in sub_key or "Used" in sub_key or "Available" in sub_key else f"  {sub_key}: {sub_value}")
+                if "Total" in sub_key or "Used" in sub_key or "Available" in sub_key:
+                    st.write(f"  {sub_key}: {sub_value / (1024 ** 3):.2f} GB")
+                else:
+                    st.write(f"  {sub_key}: {sub_value}")
         else:
-            print(f"{key}: {value}")
+            st.write(f"{key}: {value}")
 
 if __name__ == "__main__":
     system_info = get_system_info()
